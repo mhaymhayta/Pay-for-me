@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#ffffff">
+<title>ตลาด</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: #f8f7f4; font-family: -apple-system, 'Sarabun', sans-serif; }
+
+  /* ---- layout ---- */
+  .app { display: flex; flex-direction: column; height: 100dvh; max-width: 480px; margin: 0 auto; background: #fff; }
+
+  /* ---- header ---- */
+  .header { padding: 52px 20px 14px; background: #fff; border-bottom: 0.5px solid #e0dfd9; }
+  .header-row { display: flex; align-items: center; justify-content: space-between; }
+  .header h1 { font-size: 26px; font-weight: 600; color: #1a1a18; letter-spacing: -0.3px; }
+  .header-date { font-size: 13px; color: #8a8880; margin-top: 2px; }
+  .progress-bar { margin-top: 12px; height: 4px; background: #ede9e0; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #3b6d11; border-radius: 2px; transition: width 0.3s ease; }
+
+  /* ---- summary ---- */
+  .summary { display: flex; gap: 8px; padding: 12px 16px; background: #f8f7f4; border-bottom: 0.5px solid #e0dfd9; }
+  .sum-card { flex: 1; background: #fff; border-radius: 12px; border: 0.5px solid #e0dfd9; padding: 10px 0; text-align: center; }
+  .sum-num { font-size: 22px; font-weight: 600; color: #1a1a18; }
+  .sum-label { font-size: 11px; color: #8a8880; margin-top: 1px; }
+  .sum-card.highlight .sum-num { color: #3b6d11; }
+
+  /* ---- add area ---- */
+  .add-area { padding: 10px 16px; border-bottom: 0.5px solid #e0dfd9; background: #fff; }
+  .add-row { display: flex; gap: 8px; }
+  .add-input { flex: 1; height: 44px; border: 0.5px solid #d0cfc8; border-radius: 12px; padding: 0 14px; font-size: 16px; background: #f8f7f4; color: #1a1a18; outline: none; font-family: inherit; }
+  .add-input:focus { border-color: #3b6d11; background: #fff; }
+  .add-input::placeholder { color: #b0afa8; }
+  .add-btn { width: 44px; height: 44px; border-radius: 12px; border: none; background: #3b6d11; color: #fff; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .add-btn:active { background: #27500a; transform: scale(0.95); }
+  .cat-row { display: flex; gap: 6px; margin-top: 8px; overflow-x: auto; padding-bottom: 2px; }
+  .cat-row::-webkit-scrollbar { display: none; }
+  .cat-chip { height: 30px; padding: 0 12px; border: 0.5px solid #d0cfc8; border-radius: 15px; font-size: 12px; background: #f8f7f4; color: #5a5955; cursor: pointer; white-space: nowrap; flex-shrink: 0; font-family: inherit; transition: all 0.15s; }
+  .cat-chip.sel { background: #eaf3de; border-color: #3b6d11; color: #3b6d11; font-weight: 500; }
+
+  /* ---- filter ---- */
+  .filter-row { display: flex; gap: 6px; padding: 10px 16px; overflow-x: auto; background: #fff; border-bottom: 0.5px solid #e0dfd9; }
+  .filter-row::-webkit-scrollbar { display: none; }
+  .fchip { height: 32px; padding: 0 14px; border: 0.5px solid #d0cfc8; border-radius: 16px; font-size: 13px; background: #fff; color: #5a5955; cursor: pointer; white-space: nowrap; flex-shrink: 0; font-family: inherit; }
+  .fchip.active { background: #1a1a18; border-color: #1a1a18; color: #fff; }
+
+  /* ---- list ---- */
+  .list-wrap { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .sec-head { padding: 14px 16px 6px; font-size: 11px; color: #8a8880; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; background: #f8f7f4; border-bottom: 0.5px solid #e0dfd9; position: sticky; top: 0; z-index: 1; }
+  .item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 0.5px solid #f0efe8; background: #fff; transition: opacity 0.2s; }
+  .item.done { background: #fafafa; }
+  .check-btn { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #c5c4bc; background: none; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .check-btn.checked { background: #3b6d11; border-color: #3b6d11; }
+  .check-icon { width: 12px; height: 12px; stroke: #fff; stroke-width: 2.5; fill: none; opacity: 0; transition: opacity 0.15s; }
+  .check-btn.checked .check-icon { opacity: 1; }
+  .item-body { flex: 1; min-width: 0; }
+  .item-name { font-size: 16px; color: #1a1a18; transition: all 0.2s; }
+  .item.done .item-name { text-decoration: line-through; color: #aeada6; }
+  .item-meta { font-size: 12px; color: #aeada6; margin-top: 2px; }
+  .item-qty { font-size: 13px; color: #5a5955; flex-shrink: 0; }
+  .del-btn { width: 36px; height: 36px; border: none; background: none; color: #c5c4bc; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 8px; flex-shrink: 0; }
+  .del-btn:active { background: #fde8e8; color: #c0392b; }
+
+  .empty { padding: 60px 20px; text-align: center; color: #aeada6; }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty p { font-size: 15px; }
+
+  .clear-done { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 16px; color: #c0392b; font-size: 14px; cursor: pointer; border: none; background: none; width: 100%; font-family: inherit; border-top: 0.5px solid #f0efe8; }
+  .clear-done:active { background: #fde8e8; }
+
+  /* ---- bottom safe area ---- */
+  .safe-bottom { height: env(safe-area-inset-bottom, 0px); background: #fff; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-row">
+      <h1>🛒 ตลาด</h1>
+      <span style="font-size:13px;color:#8a8880" id="done-label">0/0</span>
+    </div>
+    <div class="header-date" id="date-str"></div>
+    <div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+  </div>
+
+  <div class="summary">
+    <div class="sum-card"><div class="sum-num" id="s-total">0</div><div class="sum-label">ทั้งหมด</div></div>
+    <div class="sum-card"><div class="sum-num" id="s-left">0</div><div class="sum-label">ต้องซื้อ</div></div>
+    <div class="sum-card highlight"><div class="sum-num" id="s-done">0</div><div class="sum-label">ซื้อแล้ว</div></div>
+  </div>
+
+  <div class="add-area">
+    <div class="add-row">
+      <input class="add-input" id="inp" type="text" placeholder="เพิ่มรายการ เช่น ไข่ไก่" enterkeyhint="done" />
+      <button class="add-btn" id="add-btn" aria-label="เพิ่ม">+</button>
+    </div>
+    <div class="cat-row" id="cat-row">
+      <button class="cat-chip sel" data-c="ผัก-ผลไม้">🥦 ผัก</button>
+      <button class="cat-chip" data-c="เนื้อสัตว์">🥩 เนื้อ</button>
+      <button class="cat-chip" data-c="อาหารทะเล">🐟 ทะเล</button>
+      <button class="cat-chip" data-c="นม-ไข่">🥛 นม/ไข่</button>
+      <button class="cat-chip" data-c="เครื่องปรุง">🧂 ปรุง</button>
+      <button class="cat-chip" data-c="ของแห้ง">🌾 แห้ง</button>
+      <button class="cat-chip" data-c="อื่นๆ">🛍 อื่นๆ</button>
+    </div>
+  </div>
+
+  <div class="filter-row" id="frow">
+    <button class="fchip active" data-f="all">ทั้งหมด</button>
+    <button class="fchip" data-f="todo">ยังต้องซื้อ</button>
+    <button class="fchip" data-f="done">ซื้อแล้ว</button>
+    <button class="fchip" data-f="ผัก-ผลไม้">🥦 ผัก</button>
+    <button class="fchip" data-f="เนื้อสัตว์">🥩 เนื้อ</button>
+    <button class="fchip" data-f="อาหารทะเล">🐟 ทะเล</button>
+    <button class="fchip" data-f="นม-ไข่">🥛 นม/ไข่</button>
+    <button class="fchip" data-f="เครื่องปรุง">🧂 ปรุง</button>
+    <button class="fchip" data-f="ของแห้ง">🌾 แห้ง</button>
+  </div>
+
+  <div class="list-wrap" id="list"></div>
+  <div class="safe-bottom"></div>
+</div>
+
+<script>
+const CATS = {
+  'ผัก-ผลไม้':'🥦 ผัก-ผลไม้','เนื้อสัตว์':'🥩 เนื้อสัตว์','อาหารทะเล':'🐟 อาหารทะเล',
+  'นม-ไข่':'🥛 นม-ไข่','เครื่องปรุง':'🧂 เครื่องปรุง','ของแห้ง':'🌾 ของแห้ง','อื่นๆ':'🛍 อื่นๆ'
+};
+let items = [];
+let nextId = 1;
+let filter = 'all';
+let selCat = 'ผัก-ผลไม้';
+
+function load() {
+  try {
+    const d = localStorage.getItem('mkt2');
+    if (d) { const p = JSON.parse(d); items = p.items || []; nextId = p.nextId || 1; }
+  } catch(e) {}
+  if (!items.length) {
+    const demo = [
+      ['ไข่ไก่','นม-ไข่','1 แผง'],['ผักบุ้ง','ผัก-ผลไม้','1 กำ'],
+      ['หมูสามชั้น','เนื้อสัตว์','500g'],['น้ำปลา','เครื่องปรุง','1 ขวด'],
+      ['ข้าวสาร','ของแห้ง','5 กก.'],['ปลาทู','อาหารทะเล','2 ตัว']
+    ];
+    demo.forEach(([n,c,q]) => items.push({id:nextId++,name:n,cat:c,qty:q,done:false}));
+  }
+}
+function save() {
+  try { localStorage.setItem('mkt2', JSON.stringify({items, nextId})); } catch(e) {}
+}
+function toggle(id) { const it = items.find(x=>x.id===id); if(it){ it.done=!it.done; save(); render(); } }
+function del(id) { items = items.filter(x=>x.id!==id); save(); render(); }
+function clearDone() { if(confirm('ล้างรายการที่ซื้อแล้วทั้งหมด?')){ items=items.filter(x=>!x.done); save(); render(); } }
+
+function addItem() {
+  const v = document.getElementById('inp').value.trim();
+  if (!v) return;
+  items.unshift({id:nextId++, name:v, cat:selCat, qty:'', done:false});
+  document.getElementById('inp').value = '';
+  save(); render();
+}
+
+function render() {
+  const total = items.length;
+  const done = items.filter(x=>x.done).length;
+  document.getElementById('s-total').textContent = total;
+  document.getElementById('s-left').textContent = total - done;
+  document.getElementById('s-done').textContent = done;
+  document.getElementById('done-label').textContent = done + '/' + total;
+  document.getElementById('prog').style.width = total ? Math.round(done/total*100)+'%' : '0%';
+
+  let vis = items;
+  if (filter==='todo') vis = items.filter(x=>!x.done);
+  else if (filter==='done') vis = items.filter(x=>x.done);
+  else if (filter!=='all') vis = items.filter(x=>x.cat===filter);
+
+  const bycat = {};
+  vis.forEach(it => { if(!bycat[it.cat]) bycat[it.cat]=[]; bycat[it.cat].push(it); });
+
+  const el = document.getElementById('list');
+  if (!vis.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🧺</div><p>ไม่มีรายการ</p></div>';
+    return;
+  }
+  let html = '';
+  Object.entries(bycat).forEach(([cat, its]) => {
+    html += `<div class="sec-head">${CATS[cat]||cat}</div>`;
+    its.forEach(it => {
+      html += `<div class="item${it.done?' done':''}">
+        <button class="check-btn${it.done?' checked':''}" onclick="toggle(${it.id})" aria-label="${it.done?'ยกเลิก':'ติ๊กซื้อแล้ว'}">
+          <svg class="check-icon" viewBox="0 0 12 12"><polyline points="1.5,6 4.5,9 10.5,3"/></svg>
+        </button>
+        <div class="item-body">
+          <div class="item-name">${it.name}</div>
+          ${it.qty ? `<div class="item-meta">${it.qty}</div>` : ''}
+        </div>
+        <button class="del-btn" onclick="del(${it.id})" aria-label="ลบ">✕</button>
+      </div>`;
+    });
+  });
+  const doneItems = items.filter(x=>x.done).length;
+  if (doneItems > 0 && (filter==='all'||filter==='done')) {
+    html += `<button class="clear-done" onclick="clearDone()">🗑 ล้างรายการที่ซื้อแล้ว (${doneItems})</button>`;
+  }
+  el.innerHTML = html;
+}
+
+// date
+const d = new Date();
+document.getElementById('date-str').textContent = d.toLocaleDateString('th-TH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+// add
+document.getElementById('add-btn').addEventListener('click', addItem);
+document.getElementById('inp').addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); addItem(); } });
+
+// cat select
+document.getElementById('cat-row').addEventListener('click', e => {
+  const b = e.target.closest('.cat-chip'); if(!b) return;
+  selCat = b.dataset.c;
+  document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('sel'));
+  b.classList.add('sel');
+});
+
+// filter
+document.getElementById('frow').addEventListener('click', e => {
+  const b = e.target.closest('.fchip'); if(!b) return;
+  filter = b.dataset.f;
+  document.querySelectorAll('.fchip').forEach(c=>c.classList.remove('active'));
+  b.classList.add('active');
+  render();
+});
+
+load(); render();
+</script>
+</body>
+</html>
