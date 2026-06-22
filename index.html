@@ -10,11 +10,8 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; background: #f8f7f4; font-family: -apple-system, 'Sarabun', sans-serif; }
-
-  /* ---- layout ---- */
   .app { display: flex; flex-direction: column; height: 100dvh; max-width: 480px; margin: 0 auto; background: #fff; }
 
-  /* ---- header ---- */
   .header { padding: 52px 20px 14px; background: #fff; border-bottom: 0.5px solid #e0dfd9; }
   .header-row { display: flex; align-items: center; justify-content: space-between; }
   .header h1 { font-size: 26px; font-weight: 600; color: #1a1a18; letter-spacing: -0.3px; }
@@ -22,14 +19,16 @@
   .progress-bar { margin-top: 12px; height: 4px; background: #ede9e0; border-radius: 2px; overflow: hidden; }
   .progress-fill { height: 100%; background: #3b6d11; border-radius: 2px; transition: width 0.3s ease; }
 
-  /* ---- summary ---- */
+  .tabs { display: flex; border-bottom: 0.5px solid #e0dfd9; background: #fff; }
+  .tab { flex: 1; height: 44px; border: none; background: none; font-size: 14px; color: #8a8880; cursor: pointer; font-family: inherit; border-bottom: 2px solid transparent; transition: all 0.15s; }
+  .tab.active { color: #1a1a18; font-weight: 500; border-bottom-color: #3b6d11; }
+
   .summary { display: flex; gap: 8px; padding: 12px 16px; background: #f8f7f4; border-bottom: 0.5px solid #e0dfd9; }
   .sum-card { flex: 1; background: #fff; border-radius: 12px; border: 0.5px solid #e0dfd9; padding: 10px 0; text-align: center; }
   .sum-num { font-size: 22px; font-weight: 600; color: #1a1a18; }
   .sum-label { font-size: 11px; color: #8a8880; margin-top: 1px; }
   .sum-card.highlight .sum-num { color: #3b6d11; }
 
-  /* ---- add area ---- */
   .add-area { padding: 10px 16px; border-bottom: 0.5px solid #e0dfd9; background: #fff; }
   .add-row { display: flex; gap: 8px; }
   .add-input { flex: 1; height: 44px; border: 0.5px solid #d0cfc8; border-radius: 12px; padding: 0 14px; font-size: 16px; background: #f8f7f4; color: #1a1a18; outline: none; font-family: inherit; }
@@ -37,42 +36,41 @@
   .add-input::placeholder { color: #b0afa8; }
   .add-btn { width: 44px; height: 44px; border-radius: 12px; border: none; background: #3b6d11; color: #fff; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .add-btn:active { background: #27500a; transform: scale(0.95); }
-  .cat-row { display: flex; gap: 6px; margin-top: 8px; overflow-x: auto; padding-bottom: 2px; }
-  .cat-row::-webkit-scrollbar { display: none; }
-  .cat-chip { height: 30px; padding: 0 12px; border: 0.5px solid #d0cfc8; border-radius: 15px; font-size: 12px; background: #f8f7f4; color: #5a5955; cursor: pointer; white-space: nowrap; flex-shrink: 0; font-family: inherit; transition: all 0.15s; }
-  .cat-chip.sel { background: #eaf3de; border-color: #3b6d11; color: #3b6d11; font-weight: 500; }
 
-  /* ---- filter ---- */
-  .filter-row { display: flex; gap: 6px; padding: 10px 16px; overflow-x: auto; background: #fff; border-bottom: 0.5px solid #e0dfd9; }
-  .filter-row::-webkit-scrollbar { display: none; }
-  .fchip { height: 32px; padding: 0 14px; border: 0.5px solid #d0cfc8; border-radius: 16px; font-size: 13px; background: #fff; color: #5a5955; cursor: pointer; white-space: nowrap; flex-shrink: 0; font-family: inherit; }
-  .fchip.active { background: #1a1a18; border-color: #1a1a18; color: #fff; }
-
-  /* ---- list ---- */
   .list-wrap { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-  .sec-head { padding: 14px 16px 6px; font-size: 11px; color: #8a8880; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; background: #f8f7f4; border-bottom: 0.5px solid #e0dfd9; position: sticky; top: 0; z-index: 1; }
-  .item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 0.5px solid #f0efe8; background: #fff; transition: opacity 0.2s; }
+  .sec-label { padding: 12px 16px 6px; font-size: 11px; color: #8a8880; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; background: #f8f7f4; border-bottom: 0.5px solid #e0dfd9; }
+
+  .item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 0.5px solid #f0efe8; background: #fff; }
   .item.done { background: #fafafa; }
+  .item.overdue { background: #fffbf0; }
   .check-btn { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #c5c4bc; background: none; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
   .check-btn.checked { background: #3b6d11; border-color: #3b6d11; }
   .check-icon { width: 12px; height: 12px; stroke: #fff; stroke-width: 2.5; fill: none; opacity: 0; transition: opacity 0.15s; }
   .check-btn.checked .check-icon { opacity: 1; }
   .item-body { flex: 1; min-width: 0; }
-  .item-name { font-size: 16px; color: #1a1a18; transition: all 0.2s; }
+  .item-name { font-size: 17px; color: #1a1a18; }
   .item.done .item-name { text-decoration: line-through; color: #aeada6; }
-  .item-meta { font-size: 12px; color: #aeada6; margin-top: 2px; }
-  .item-qty { font-size: 13px; color: #5a5955; flex-shrink: 0; }
-  .del-btn { width: 36px; height: 36px; border: none; background: none; color: #c5c4bc; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 8px; flex-shrink: 0; }
+  .item-sub { font-size: 12px; color: #aeada6; margin-top: 2px; }
+  .overdue-badge { font-size: 11px; color: #9a6f00; background: #fff3cd; border-radius: 6px; padding: 2px 7px; flex-shrink: 0; }
+  .del-btn { width: 36px; height: 36px; border: none; background: none; color: #c5c4bc; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 8px; flex-shrink: 0; font-size: 16px; }
   .del-btn:active { background: #fde8e8; color: #c0392b; }
 
   .empty { padding: 60px 20px; text-align: center; color: #aeada6; }
   .empty-icon { font-size: 48px; margin-bottom: 12px; }
-  .empty p { font-size: 15px; }
+  .empty p { font-size: 15px; line-height: 1.6; }
 
-  .clear-done { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 16px; color: #c0392b; font-size: 14px; cursor: pointer; border: none; background: none; width: 100%; font-family: inherit; border-top: 0.5px solid #f0efe8; }
+  .finish-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 16px; color: #3b6d11; font-size: 15px; font-weight: 500; cursor: pointer; border: none; background: none; width: 100%; font-family: inherit; border-top: 0.5px solid #e0dfd9; }
+  .finish-btn:active { background: #eaf3de; }
+  .clear-done { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 14px; color: #c0392b; font-size: 14px; cursor: pointer; border: none; background: none; width: 100%; font-family: inherit; border-top: 0.5px solid #f0efe8; }
   .clear-done:active { background: #fde8e8; }
 
-  /* ---- bottom safe area ---- */
+  .hist-item { padding: 16px; border-bottom: 0.5px solid #f0efe8; }
+  .hist-date { font-size: 13px; font-weight: 600; color: #1a1a18; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+  .hist-date-sub { font-size: 12px; color: #8a8880; font-weight: 400; }
+  .hist-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .hist-tag { font-size: 13px; background: #f0efe8; border-radius: 8px; padding: 4px 10px; color: #5a5955; }
+  .hist-tag.missed { background: #fff3cd; color: #9a6f00; }
+
   .safe-bottom { height: env(safe-area-inset-bottom, 0px); background: #fff; }
 </style>
 </head>
@@ -81,160 +79,258 @@
   <div class="header">
     <div class="header-row">
       <h1>🛒 ตลาด</h1>
-      <span style="font-size:13px;color:#8a8880" id="done-label">0/0</span>
+      <span style="font-size:13px;color:#8a8880" id="done-label"></span>
     </div>
     <div class="header-date" id="date-str"></div>
     <div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
   </div>
 
-  <div class="summary">
-    <div class="sum-card"><div class="sum-num" id="s-total">0</div><div class="sum-label">ทั้งหมด</div></div>
-    <div class="sum-card"><div class="sum-num" id="s-left">0</div><div class="sum-label">ต้องซื้อ</div></div>
-    <div class="sum-card highlight"><div class="sum-num" id="s-done">0</div><div class="sum-label">ซื้อแล้ว</div></div>
+  <div class="tabs">
+    <button class="tab active" id="tab-today" onclick="switchTab('today')">วันนี้</button>
+    <button class="tab" id="tab-history" onclick="switchTab('history')">ย้อนหลัง</button>
   </div>
 
-  <div class="add-area">
-    <div class="add-row">
-      <input class="add-input" id="inp" type="text" placeholder="เพิ่มรายการ เช่น ไข่ไก่" enterkeyhint="done" />
-      <button class="add-btn" id="add-btn" aria-label="เพิ่ม">+</button>
+  <div id="view-today" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+    <div class="summary">
+      <div class="sum-card"><div class="sum-num" id="s-total">0</div><div class="sum-label">ทั้งหมด</div></div>
+      <div class="sum-card"><div class="sum-num" id="s-left">0</div><div class="sum-label">ต้องซื้อ</div></div>
+      <div class="sum-card highlight"><div class="sum-num" id="s-done">0</div><div class="sum-label">ซื้อแล้ว</div></div>
     </div>
-    <div class="cat-row" id="cat-row">
-      <button class="cat-chip sel" data-c="ผัก-ผลไม้">🥦 ผัก</button>
-      <button class="cat-chip" data-c="เนื้อสัตว์">🥩 เนื้อ</button>
-      <button class="cat-chip" data-c="อาหารทะเล">🐟 ทะเล</button>
-      <button class="cat-chip" data-c="นม-ไข่">🥛 นม/ไข่</button>
-      <button class="cat-chip" data-c="เครื่องปรุง">🧂 ปรุง</button>
-      <button class="cat-chip" data-c="ของแห้ง">🌾 แห้ง</button>
-      <button class="cat-chip" data-c="อื่นๆ">🛍 อื่นๆ</button>
+    <div class="add-area">
+      <div class="add-row">
+        <input class="add-input" id="inp" type="text" placeholder="เพิ่มรายการ เช่น ไข่ไก่" enterkeyhint="done" />
+        <button class="add-btn" id="add-btn" aria-label="เพิ่ม">+</button>
+      </div>
     </div>
+    <div class="list-wrap" id="list"></div>
   </div>
 
-  <div class="filter-row" id="frow">
-    <button class="fchip active" data-f="all">ทั้งหมด</button>
-    <button class="fchip" data-f="todo">ยังต้องซื้อ</button>
-    <button class="fchip" data-f="done">ซื้อแล้ว</button>
-    <button class="fchip" data-f="ผัก-ผลไม้">🥦 ผัก</button>
-    <button class="fchip" data-f="เนื้อสัตว์">🥩 เนื้อ</button>
-    <button class="fchip" data-f="อาหารทะเล">🐟 ทะเล</button>
-    <button class="fchip" data-f="นม-ไข่">🥛 นม/ไข่</button>
-    <button class="fchip" data-f="เครื่องปรุง">🧂 ปรุง</button>
-    <button class="fchip" data-f="ของแห้ง">🌾 แห้ง</button>
+  <div id="view-history" style="display:none;flex:1;overflow-y:auto">
+    <div id="hist-list"></div>
   </div>
 
-  <div class="list-wrap" id="list"></div>
   <div class="safe-bottom"></div>
 </div>
 
 <script>
-const CATS = {
-  'ผัก-ผลไม้':'🥦 ผัก-ผลไม้','เนื้อสัตว์':'🥩 เนื้อสัตว์','อาหารทะเล':'🐟 อาหารทะเล',
-  'นม-ไข่':'🥛 นม-ไข่','เครื่องปรุง':'🧂 เครื่องปรุง','ของแห้ง':'🌾 ของแห้ง','อื่นๆ':'🛍 อื่นๆ'
-};
-let items = [];
-let nextId = 1;
-let filter = 'all';
-let selCat = 'ผัก-ผลไม้';
+const TODAY = new Date().toISOString().slice(0,10);
 
-function load() {
+function dateStr(daysAgo) {
+  const d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  return d.toISOString().slice(0,10);
+}
+
+function loadData() {
   try {
-    const d = localStorage.getItem('mkt2');
-    if (d) { const p = JSON.parse(d); items = p.items || []; nextId = p.nextId || 1; }
+    const d = localStorage.getItem('mkt4');
+    if (d) return JSON.parse(d);
   } catch(e) {}
-  if (!items.length) {
-    const demo = [
-      ['ไข่ไก่','นม-ไข่','1 แผง'],['ผักบุ้ง','ผัก-ผลไม้','1 กำ'],
-      ['หมูสามชั้น','เนื้อสัตว์','500g'],['น้ำปลา','เครื่องปรุง','1 ขวด'],
-      ['ข้าวสาร','ของแห้ง','5 กก.'],['ปลาทู','อาหารทะเล','2 ตัว']
-    ];
-    demo.forEach(([n,c,q]) => items.push({id:nextId++,name:n,cat:c,qty:q,done:false}));
+  return null;
+}
+function saveData(data) {
+  try { localStorage.setItem('mkt4', JSON.stringify(data)); } catch(e) {}
+}
+
+let data = loadData();
+
+if (!data) {
+  // สร้างข้อมูลตัวอย่าง 3 วัน
+  data = { sessions: [], currentItems: [], nextId: 1 };
+
+  // 3 วันที่แล้ว
+  data.sessions.push({
+    date: dateStr(3),
+    items: [
+      {id:1, name:'ไข่ไก่', done:false, carried:true},
+      {id:2, name:'ผักบุ้ง', done:true},
+      {id:3, name:'หมูสามชั้น', done:true},
+      {id:4, name:'น้ำปลา', done:false, carried:true},
+      {id:5, name:'ข้าวสาร', done:false, carried:true},
+    ]
+  });
+
+  // 2 วันที่แล้ว
+  data.sessions.push({
+    date: dateStr(2),
+    items: [
+      {id:6, name:'น้ำปลา', done:true, carriedFrom: dateStr(3)},
+      {id:7, name:'ข้าวสาร', done:false, carriedFrom: dateStr(3), carried:true},
+      {id:8, name:'ปลาทู', done:true},
+      {id:9, name:'กะหล่ำปลี', done:true},
+      {id:10, name:'กระเทียม', done:false, carried:true},
+    ]
+  });
+
+  // เมื่อวาน
+  data.sessions.push({
+    date: dateStr(1),
+    items: [
+      {id:11, name:'ข้าวสาร', done:false, carriedFrom: dateStr(2), carried:true},
+      {id:12, name:'กระเทียม', done:true, carriedFrom: dateStr(2)},
+      {id:13, name:'ไก่ทั้งตัว', done:true},
+      {id:14, name:'มะนาว', done:true},
+      {id:15, name:'พริก', done:false, carried:true},
+    ]
+  });
+
+  data.nextId = 20;
+
+  // รายการวันนี้ — ยกค้างมาจากเมื่อวาน (เกิน 2 วัน = ข้าวสาร, พริก ไม่ได้ซื้อ)
+  data.currentItems = [
+    {id:20, name:'ข้าวสาร', done:false, addedDate:TODAY, carriedFrom: dateStr(3)},
+    {id:22, name:'ไข่ไก่', done:false, addedDate:TODAY, carriedFrom: dateStr(3)},
+    {id:21, name:'พริก', done:false, addedDate:TODAY, carriedFrom: dateStr(1)},
+  ];
+  data.nextId = 25;
+
+  saveData(data);
+}
+
+function checkCarryOver() {
+  if (!data.sessions.length) return;
+  data.sessions.forEach(s => {
+    const sAge = Math.floor((new Date(TODAY) - new Date(s.date)) / 86400000);
+    if (sAge <= 2) return;
+    s.items.forEach(it => {
+      if (!it.done && !it.carried) {
+        it.carried = true;
+        const exists = data.currentItems.some(c => c.name === it.name);
+        if (!exists) {
+          data.currentItems.push({id: data.nextId++, name: it.name, done: false, addedDate: TODAY, carriedFrom: s.date});
+        }
+      }
+    });
+  });
+  saveData(data);
+}
+
+checkCarryOver();
+
+function toggle(id) {
+  const it = data.currentItems.find(x => x.id === id);
+  if (it) { it.done = !it.done; saveData(data); renderToday(); }
+}
+function del(id) {
+  data.currentItems = data.currentItems.filter(x => x.id !== id);
+  saveData(data); renderToday();
+}
+function clearDone() {
+  if (confirm('ล้างรายการที่ซื้อแล้ว?')) {
+    data.currentItems = data.currentItems.filter(x => !x.done);
+    saveData(data); renderToday();
   }
 }
-function save() {
-  try { localStorage.setItem('mkt2', JSON.stringify({items, nextId})); } catch(e) {}
+function finishDay() {
+  if (!data.currentItems.length) { alert('ยังไม่มีรายการ'); return; }
+  if (!confirm('บันทึกและจบวันนี้?')) return;
+  const existing = data.sessions.find(s => s.date === TODAY);
+  if (existing) { existing.items = JSON.parse(JSON.stringify(data.currentItems)); }
+  else { data.sessions.push({date: TODAY, items: JSON.parse(JSON.stringify(data.currentItems))}); }
+  data.currentItems = [];
+  saveData(data); renderToday();
 }
-function toggle(id) { const it = items.find(x=>x.id===id); if(it){ it.done=!it.done; save(); render(); } }
-function del(id) { items = items.filter(x=>x.id!==id); save(); render(); }
-function clearDone() { if(confirm('ล้างรายการที่ซื้อแล้วทั้งหมด?')){ items=items.filter(x=>!x.done); save(); render(); } }
-
 function addItem() {
   const v = document.getElementById('inp').value.trim();
   if (!v) return;
-  items.unshift({id:nextId++, name:v, cat:selCat, qty:'', done:false});
+  data.currentItems.push({id: data.nextId++, name: v, done: false, addedDate: TODAY});
   document.getElementById('inp').value = '';
-  save(); render();
+  saveData(data); renderToday();
 }
 
-function render() {
+function renderToday() {
+  const items = data.currentItems;
   const total = items.length;
-  const done = items.filter(x=>x.done).length;
+  const done = items.filter(x => x.done).length;
   document.getElementById('s-total').textContent = total;
   document.getElementById('s-left').textContent = total - done;
   document.getElementById('s-done').textContent = done;
-  document.getElementById('done-label').textContent = done + '/' + total;
+  document.getElementById('done-label').textContent = total ? done+'/'+total : '';
   document.getElementById('prog').style.width = total ? Math.round(done/total*100)+'%' : '0%';
 
-  let vis = items;
-  if (filter==='todo') vis = items.filter(x=>!x.done);
-  else if (filter==='done') vis = items.filter(x=>x.done);
-  else if (filter!=='all') vis = items.filter(x=>x.cat===filter);
-
-  const bycat = {};
-  vis.forEach(it => { if(!bycat[it.cat]) bycat[it.cat]=[]; bycat[it.cat].push(it); });
-
   const el = document.getElementById('list');
-  if (!vis.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-icon">🧺</div><p>ไม่มีรายการ</p></div>';
+  if (!items.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🧺</div><p>ไม่มีรายการ<br><span style="font-size:13px">เพิ่มรายการด้านบน<br>หรือกดจบวันก่อนหน้าแล้ว<br>รายการค้างจะโผล่อัตโนมัติ</span></p></div>';
     return;
   }
+
+  const carried = items.filter(x => x.carriedFrom);
+  const normal = items.filter(x => !x.carriedFrom);
   let html = '';
-  Object.entries(bycat).forEach(([cat, its]) => {
-    html += `<div class="sec-head">${CATS[cat]||cat}</div>`;
-    its.forEach(it => {
-      html += `<div class="item${it.done?' done':''}">
-        <button class="check-btn${it.done?' checked':''}" onclick="toggle(${it.id})" aria-label="${it.done?'ยกเลิก':'ติ๊กซื้อแล้ว'}">
-          <svg class="check-icon" viewBox="0 0 12 12"><polyline points="1.5,6 4.5,9 10.5,3"/></svg>
-        </button>
-        <div class="item-body">
-          <div class="item-name">${it.name}</div>
-          ${it.qty ? `<div class="item-meta">${it.qty}</div>` : ''}
-        </div>
-        <button class="del-btn" onclick="del(${it.id})" aria-label="ลบ">✕</button>
-      </div>`;
+
+  if (carried.length) {
+    html += '<div class="sec-label">⚠️ ค้างจากครั้งก่อน</div>';
+    carried.forEach(it => {
+      const age = Math.floor((new Date(TODAY) - new Date(it.carriedFrom)) / 86400000);
+      html += itemHTML(it, 'ค้างมา '+age+' วัน');
     });
-  });
-  const doneItems = items.filter(x=>x.done).length;
-  if (doneItems > 0 && (filter==='all'||filter==='done')) {
-    html += `<button class="clear-done" onclick="clearDone()">🗑 ล้างรายการที่ซื้อแล้ว (${doneItems})</button>`;
   }
+  if (normal.length) {
+    if (carried.length) html += '<div class="sec-label">รายการวันนี้</div>';
+    normal.forEach(it => { html += itemHTML(it, ''); });
+  }
+
+  const doneCount = items.filter(x => x.done).length;
+  if (doneCount > 0) html += `<button class="clear-done" onclick="clearDone()">🗑 ล้างที่ซื้อแล้ว (${doneCount})</button>`;
+  html += `<button class="finish-btn" onclick="finishDay()">✅ จบวันนี้ — บันทึกประวัติ</button>`;
   el.innerHTML = html;
 }
 
-// date
+function itemHTML(it, sub) {
+  const oc = it.carriedFrom && !it.done;
+  return `<div class="item${it.done?' done':''}${oc?' overdue':''}">
+    <button class="check-btn${it.done?' checked':''}" onclick="toggle(${it.id})" aria-label="ติ๊ก">
+      <svg class="check-icon" viewBox="0 0 12 12"><polyline points="1.5,6 4.5,9 10.5,3"/></svg>
+    </button>
+    <div class="item-body">
+      <div class="item-name">${it.name}</div>
+      ${sub?`<div class="item-sub">${sub}</div>`:''}
+    </div>
+    ${oc?'<span class="overdue-badge">ค้าง</span>':''}
+    <button class="del-btn" onclick="del(${it.id})" aria-label="ลบ">✕</button>
+  </div>`;
+}
+
+function renderHistory() {
+  const el = document.getElementById('hist-list');
+  if (!data.sessions.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><p>ยังไม่มีประวัติ</p></div>';
+    return;
+  }
+  const sorted = [...data.sessions].reverse();
+  let html = '';
+  sorted.forEach(s => {
+    const dd = new Date(s.date);
+    const label = dd.toLocaleDateString('th-TH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    const bought = s.items.filter(x => x.done);
+    const missed = s.items.filter(x => !x.done);
+    html += `<div class="hist-item">
+      <div class="hist-date">
+        <span>${label}</span>
+        <span class="hist-date-sub">ซื้อ ${bought.length}/${s.items.length}</span>
+      </div>
+      <div class="hist-tags">`;
+    bought.forEach(it => { html += `<span class="hist-tag">✓ ${it.name}</span>`; });
+    missed.forEach(it => { html += `<span class="hist-tag missed">✕ ${it.name}</span>`; });
+    html += `</div></div>`;
+  });
+  el.innerHTML = html;
+}
+
+function switchTab(tab) {
+  document.getElementById('tab-today').classList.toggle('active', tab==='today');
+  document.getElementById('tab-history').classList.toggle('active', tab==='history');
+  document.getElementById('view-today').style.display = tab==='today' ? 'flex' : 'none';
+  document.getElementById('view-history').style.display = tab==='history' ? 'block' : 'none';
+  if (tab==='history') renderHistory();
+}
+
 const d = new Date();
 document.getElementById('date-str').textContent = d.toLocaleDateString('th-TH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-
-// add
 document.getElementById('add-btn').addEventListener('click', addItem);
 document.getElementById('inp').addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); addItem(); } });
 
-// cat select
-document.getElementById('cat-row').addEventListener('click', e => {
-  const b = e.target.closest('.cat-chip'); if(!b) return;
-  selCat = b.dataset.c;
-  document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('sel'));
-  b.classList.add('sel');
-});
-
-// filter
-document.getElementById('frow').addEventListener('click', e => {
-  const b = e.target.closest('.fchip'); if(!b) return;
-  filter = b.dataset.f;
-  document.querySelectorAll('.fchip').forEach(c=>c.classList.remove('active'));
-  b.classList.add('active');
-  render();
-});
-
-load(); render();
+renderToday();
 </script>
 </body>
 </html>
