@@ -57,16 +57,14 @@
 
   .empty { padding: 60px 20px; text-align: center; color: #aeada6; }
   .empty-icon { font-size: 48px; margin-bottom: 12px; }
-  .empty p { font-size: 15px; line-height: 1.6; }
+  .empty p { font-size: 15px; line-height: 1.8; }
 
-  .finish-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 16px; color: #3b6d11; font-size: 15px; font-weight: 500; cursor: pointer; border: none; background: none; width: 100%; font-family: inherit; border-top: 0.5px solid #e0dfd9; }
-  .finish-btn:active { background: #eaf3de; }
   .clear-done { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 14px; color: #c0392b; font-size: 14px; cursor: pointer; border: none; background: none; width: 100%; font-family: inherit; border-top: 0.5px solid #f0efe8; }
   .clear-done:active { background: #fde8e8; }
 
   .hist-item { padding: 16px; border-bottom: 0.5px solid #f0efe8; }
-  .hist-date { font-size: 13px; font-weight: 600; color: #1a1a18; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
-  .hist-date-sub { font-size: 12px; color: #8a8880; font-weight: 400; }
+  .hist-date-row { font-size: 13px; font-weight: 600; color: #1a1a18; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+  .hist-count { font-size: 12px; color: #8a8880; font-weight: 400; }
   .hist-tags { display: flex; flex-wrap: wrap; gap: 6px; }
   .hist-tag { font-size: 13px; background: #f0efe8; border-radius: 8px; padding: 4px 10px; color: #5a5955; }
   .hist-tag.missed { background: #fff3cd; color: #9a6f00; }
@@ -115,131 +113,108 @@
 <script>
 const TODAY = new Date().toISOString().slice(0,10);
 
-function dateStr(daysAgo) {
-  const d = new Date();
-  d.setDate(d.getDate() - daysAgo);
+function daysAgoStr(n) {
+  const d = new Date(); d.setDate(d.getDate() - n);
   return d.toISOString().slice(0,10);
+}
+function daysBetween(a, b) {
+  return Math.floor((new Date(b) - new Date(a)) / 86400000);
 }
 
 function loadData() {
-  try {
-    const d = localStorage.getItem('mkt4');
-    if (d) return JSON.parse(d);
-  } catch(e) {}
+  try { const d = localStorage.getItem('mkt5'); if (d) return JSON.parse(d); } catch(e) {}
   return null;
 }
-function saveData(data) {
-  try { localStorage.setItem('mkt4', JSON.stringify(data)); } catch(e) {}
+function saveData() {
+  try { localStorage.setItem('mkt5', JSON.stringify(data)); } catch(e) {}
 }
 
 let data = loadData();
 
 if (!data) {
-  // สร้างข้อมูลตัวอย่าง 3 วัน
-  data = { sessions: [], currentItems: [], nextId: 1 };
+  // demo: 3 วันย้อนหลัง
+  data = { sessions: {}, today: { date: TODAY, items: [] }, nextId: 30 };
 
-  // 3 วันที่แล้ว
-  data.sessions.push({
-    date: dateStr(3),
-    items: [
-      {id:1, name:'ไข่ไก่', done:false, carried:true},
-      {id:2, name:'ผักบุ้ง', done:true},
-      {id:3, name:'หมูสามชั้น', done:true},
-      {id:4, name:'น้ำปลา', done:false, carried:true},
-      {id:5, name:'ข้าวสาร', done:false, carried:true},
-    ]
-  });
-
-  // 2 วันที่แล้ว
-  data.sessions.push({
-    date: dateStr(2),
-    items: [
-      {id:6, name:'น้ำปลา', done:true, carriedFrom: dateStr(3)},
-      {id:7, name:'ข้าวสาร', done:false, carriedFrom: dateStr(3), carried:true},
-      {id:8, name:'ปลาทู', done:true},
-      {id:9, name:'กะหล่ำปลี', done:true},
-      {id:10, name:'กระเทียม', done:false, carried:true},
-    ]
-  });
-
-  // เมื่อวาน
-  data.sessions.push({
-    date: dateStr(1),
-    items: [
-      {id:11, name:'ข้าวสาร', done:false, carriedFrom: dateStr(2), carried:true},
-      {id:12, name:'กระเทียม', done:true, carriedFrom: dateStr(2)},
-      {id:13, name:'ไก่ทั้งตัว', done:true},
-      {id:14, name:'มะนาว', done:true},
-      {id:15, name:'พริก', done:false, carried:true},
-    ]
-  });
-
-  data.nextId = 20;
-
-  // รายการวันนี้ — ยกค้างมาจากเมื่อวาน (เกิน 2 วัน = ข้าวสาร, พริก ไม่ได้ซื้อ)
-  data.currentItems = [
-    {id:20, name:'ข้าวสาร', done:false, addedDate:TODAY, carriedFrom: dateStr(3)},
-    {id:22, name:'ไข่ไก่', done:false, addedDate:TODAY, carriedFrom: dateStr(3)},
-    {id:21, name:'พริก', done:false, addedDate:TODAY, carriedFrom: dateStr(1)},
+  data.sessions[daysAgoStr(3)] = [
+    {id:1, name:'ไข่ไก่', done:false},
+    {id:2, name:'ผักบุ้ง', done:true},
+    {id:3, name:'หมูสามชั้น', done:true},
+    {id:4, name:'น้ำปลา', done:false},
+    {id:5, name:'ข้าวสาร', done:false},
   ];
-  data.nextId = 25;
+  data.sessions[daysAgoStr(2)] = [
+    {id:6, name:'ไข่ไก่', done:false, carriedFrom: daysAgoStr(3)},
+    {id:7, name:'น้ำปลา', done:true, carriedFrom: daysAgoStr(3)},
+    {id:8, name:'ข้าวสาร', done:false, carriedFrom: daysAgoStr(3)},
+    {id:9, name:'ปลาทู', done:true},
+    {id:10, name:'กะหล่ำปลี', done:true},
+    {id:11, name:'กระเทียม', done:false},
+  ];
+  data.sessions[daysAgoStr(1)] = [
+    {id:12, name:'ไข่ไก่', done:false, carriedFrom: daysAgoStr(3)},
+    {id:13, name:'ข้าวสาร', done:false, carriedFrom: daysAgoStr(3)},
+    {id:14, name:'กระเทียม', done:true, carriedFrom: daysAgoStr(2)},
+    {id:15, name:'ไก่ทั้งตัว', done:true},
+    {id:16, name:'มะนาว', done:true},
+    {id:17, name:'พริก', done:false},
+  ];
 
-  saveData(data);
+  // วันนี้: ยกรายการค้างจากเมื่อวานมาอัตโนมัติ
+  data.today = {
+    date: TODAY,
+    items: [
+      {id:18, name:'ไข่ไก่', done:false, carriedFrom: daysAgoStr(3)},
+      {id:19, name:'ข้าวสาร', done:false, carriedFrom: daysAgoStr(3)},
+      {id:20, name:'พริก', done:false, carriedFrom: daysAgoStr(1)},
+    ]
+  };
+  saveData();
 }
 
-function checkCarryOver() {
-  if (!data.sessions.length) return;
-  data.sessions.forEach(s => {
-    const sAge = Math.floor((new Date(TODAY) - new Date(s.date)) / 86400000);
-    if (sAge <= 2) return;
-    s.items.forEach(it => {
-      if (!it.done && !it.carried) {
-        it.carried = true;
-        const exists = data.currentItems.some(c => c.name === it.name);
-        if (!exists) {
-          data.currentItems.push({id: data.nextId++, name: it.name, done: false, addedDate: TODAY, carriedFrom: s.date});
-        }
-      }
-    });
-  });
-  saveData(data);
+// ถ้าเปิดแอปวันใหม่ → snapshot วันก่อนอัตโนมัติ แล้วยกรายการที่ยังไม่ซื้อมาวันนี้
+function autoRollover() {
+  if (!data.today) data.today = { date: TODAY, items: [] };
+  if (data.today.date === TODAY) return; // วันเดิม ไม่ต้องทำอะไร
+
+  // บันทึก snapshot ของวันก่อน
+  const prevDate = data.today.date;
+  data.sessions[prevDate] = JSON.parse(JSON.stringify(data.today.items));
+
+  // เอาของที่ยังไม่ได้ซื้อมาวันใหม่
+  const carried = data.today.items
+    .filter(x => !x.done)
+    .map(x => ({ ...x, carriedFrom: x.carriedFrom || prevDate }));
+
+  data.today = { date: TODAY, items: carried };
+  saveData();
 }
 
-checkCarryOver();
+autoRollover();
 
 function toggle(id) {
-  const it = data.currentItems.find(x => x.id === id);
-  if (it) { it.done = !it.done; saveData(data); renderToday(); }
+  const it = data.today.items.find(x => x.id === id);
+  if (it) { it.done = !it.done; saveData(); renderToday(); }
 }
 function del(id) {
-  data.currentItems = data.currentItems.filter(x => x.id !== id);
-  saveData(data); renderToday();
+  data.today.items = data.today.items.filter(x => x.id !== id);
+  saveData(); renderToday();
 }
 function clearDone() {
   if (confirm('ล้างรายการที่ซื้อแล้ว?')) {
-    data.currentItems = data.currentItems.filter(x => !x.done);
-    saveData(data); renderToday();
+    data.today.items = data.today.items.filter(x => !x.done);
+    saveData(); renderToday();
   }
-}
-function finishDay() {
-  if (!data.currentItems.length) { alert('ยังไม่มีรายการ'); return; }
-  if (!confirm('บันทึกและจบวันนี้?')) return;
-  const existing = data.sessions.find(s => s.date === TODAY);
-  if (existing) { existing.items = JSON.parse(JSON.stringify(data.currentItems)); }
-  else { data.sessions.push({date: TODAY, items: JSON.parse(JSON.stringify(data.currentItems))}); }
-  data.currentItems = [];
-  saveData(data); renderToday();
 }
 function addItem() {
   const v = document.getElementById('inp').value.trim();
   if (!v) return;
-  data.currentItems.push({id: data.nextId++, name: v, done: false, addedDate: TODAY});
+  data.today.items.push({ id: data.nextId++, name: v, done: false });
   document.getElementById('inp').value = '';
-  saveData(data); renderToday();
+  saveData(); renderToday();
 }
 
 function renderToday() {
-  const items = data.currentItems;
+  const items = data.today.items;
   const total = items.length;
   const done = items.filter(x => x.done).length;
   document.getElementById('s-total').textContent = total;
@@ -250,7 +225,7 @@ function renderToday() {
 
   const el = document.getElementById('list');
   if (!items.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-icon">🧺</div><p>ไม่มีรายการ<br><span style="font-size:13px">เพิ่มรายการด้านบน<br>หรือกดจบวันก่อนหน้าแล้ว<br>รายการค้างจะโผล่อัตโนมัติ</span></p></div>';
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🧺</div><p>ไม่มีรายการ<br><span style="font-size:13px">เพิ่มรายการด้านบนได้เลย<br>รายการค้างจะโผล่อัตโนมัติวันถัดไป</span></p></div>';
     return;
   }
 
@@ -261,8 +236,8 @@ function renderToday() {
   if (carried.length) {
     html += '<div class="sec-label">⚠️ ค้างจากครั้งก่อน</div>';
     carried.forEach(it => {
-      const age = Math.floor((new Date(TODAY) - new Date(it.carriedFrom)) / 86400000);
-      html += itemHTML(it, 'ค้างมา '+age+' วัน');
+      const age = daysBetween(it.carriedFrom, TODAY);
+      html += itemHTML(it, 'ค้างมา ' + age + ' วัน');
     });
   }
   if (normal.length) {
@@ -272,7 +247,6 @@ function renderToday() {
 
   const doneCount = items.filter(x => x.done).length;
   if (doneCount > 0) html += `<button class="clear-done" onclick="clearDone()">🗑 ล้างที่ซื้อแล้ว (${doneCount})</button>`;
-  html += `<button class="finish-btn" onclick="finishDay()">✅ จบวันนี้ — บันทึกประวัติ</button>`;
   el.innerHTML = html;
 }
 
@@ -284,30 +258,31 @@ function itemHTML(it, sub) {
     </button>
     <div class="item-body">
       <div class="item-name">${it.name}</div>
-      ${sub?`<div class="item-sub">${sub}</div>`:''}
+      ${sub ? `<div class="item-sub">${sub}</div>` : ''}
     </div>
-    ${oc?'<span class="overdue-badge">ค้าง</span>':''}
+    ${oc ? '<span class="overdue-badge">ค้าง</span>' : ''}
     <button class="del-btn" onclick="del(${it.id})" aria-label="ลบ">✕</button>
   </div>`;
 }
 
 function renderHistory() {
   const el = document.getElementById('hist-list');
-  if (!data.sessions.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><p>ยังไม่มีประวัติ</p></div>';
+  const dates = Object.keys(data.sessions).sort().reverse();
+  if (!dates.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><p>ยังไม่มีประวัติ<br><span style="font-size:13px">เปิดแอปวันถัดไปจะบันทึกอัตโนมัติ</span></p></div>';
     return;
   }
-  const sorted = [...data.sessions].reverse();
   let html = '';
-  sorted.forEach(s => {
-    const dd = new Date(s.date);
-    const label = dd.toLocaleDateString('th-TH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-    const bought = s.items.filter(x => x.done);
-    const missed = s.items.filter(x => !x.done);
+  dates.forEach(date => {
+    const items = data.sessions[date];
+    const d = new Date(date);
+    const label = d.toLocaleDateString('th-TH', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+    const bought = items.filter(x => x.done);
+    const missed = items.filter(x => !x.done);
     html += `<div class="hist-item">
-      <div class="hist-date">
+      <div class="hist-date-row">
         <span>${label}</span>
-        <span class="hist-date-sub">ซื้อ ${bought.length}/${s.items.length}</span>
+        <span class="hist-count">ซื้อ ${bought.length}/${items.length}</span>
       </div>
       <div class="hist-tags">`;
     bought.forEach(it => { html += `<span class="hist-tag">✓ ${it.name}</span>`; });
